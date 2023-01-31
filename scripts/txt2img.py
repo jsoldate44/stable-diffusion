@@ -276,9 +276,7 @@ def main():
         prompt = opt.prompt
         assert prompt is not None
         data = [batch_size * [prompt]]
-        
         unprompt = opt.unprompt
-        assert unprompt in not None
         undata = [batch_size * [unprompt]]
 
     else:
