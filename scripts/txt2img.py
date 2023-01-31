@@ -106,6 +106,13 @@ def main():
         help="the prompt to render"
     )
     parser.add_argument(
+        "--unprompt",
+        type=str,
+        nargs="?",
+        default="strange faces",
+        help="remove something"
+    )
+    parser.add_argument(
         "--outdir",
         type=str,
         nargs="?",
@@ -269,6 +276,9 @@ def main():
         prompt = opt.prompt
         assert prompt is not None
         data = [batch_size * [prompt]]
+        
+        assert unprompt in not None
+        undata = [batch_size * [unprompt]]
 
     else:
         print(f"reading prompts from {opt.from_file}")
@@ -292,13 +302,13 @@ def main():
                 tic = time.time()
                 all_samples = list()
                 for n in trange(opt.n_iter, desc="Sampling"):
-                    for prompts in tqdm(data, desc="data"):
+                    for idx, prompts in enumerate(tqdm(data, desc="data")):
                         uc = None
                         if opt.scale != 1.0:
-                            uc = model.get_learned_conditioning(batch_size * [""])
+                            uc = model.get_learned_conditioning(undata[idx])
                         if isinstance(prompts, tuple):
                             prompts = list(prompts)
-                        c = model.get_learned_conditioning(prompts)
+                        c = model.get_learned_conditioning(data[idx])
                         shape = [opt.C, opt.H // opt.f, opt.W // opt.f]
                         samples_ddim, _ = sampler.sample(S=opt.ddim_steps,
                                                          conditioning=c,
